@@ -1,0 +1,8 @@
+metric,value
+total_ops,500
+duration_s,0.3071
+iops,1628.05
+throughput_mb_s,0.79
+p50_latency_us,20.00
+p95_latency_us,50.05
+p99_latency_us,68.23

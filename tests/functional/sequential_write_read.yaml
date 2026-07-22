@@ -1,0 +1,16 @@
+name: sequential_write_read
+description: >
+  Writes known data to a block, reads it back before any flush, and
+  verifies read-after-write returns exactly what was written.
+steps:
+  - op: WRITE
+    lba: 0
+    data: "48656c6c6f"       # "Hello"
+    expect_status: OK
+  - op: READ
+    lba: 0
+    length: 5
+    expect_status: OK
+    expect_data: "48656c6c6f"
+  - op: FLUSH
+    expect_status: OK

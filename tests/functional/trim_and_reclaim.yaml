@@ -1,0 +1,26 @@
+name: trim_and_reclaim
+description: >
+  Verifies TRIM zeroes out a previously-written range, matching the
+  behavior a host expects after deleting data (deallocate/discard),
+  and that the region reads back as reclaimed (zeroed) afterward.
+steps:
+  - op: WRITE
+    lba: 20
+    data: "cafebabe"
+    expect_status: OK
+  - op: FLUSH
+    expect_status: OK
+  - op: READ
+    lba: 20
+    length: 4
+    expect_status: OK
+    expect_data: "cafebabe"
+  - op: TRIM
+    lba: 20
+    length: 1
+    expect_status: OK
+  - op: READ
+    lba: 20
+    length: 4
+    expect_status: OK
+    expect_data: "00000000"

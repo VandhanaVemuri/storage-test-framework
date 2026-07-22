@@ -1,0 +1,37 @@
+name: power_loss_during_write
+description: >
+  Validates the write-then-flush durability contract: a write that is
+  never flushed must NOT survive a power loss, while a write that was
+  flushed before the power loss must survive unchanged. This is the
+  core crash-consistency guarantee any real firmware validation suite
+  checks first.
+steps:
+  # Part 1: unflushed write must be lost on power loss.
+  - op: WRITE
+    lba: 10
+    data: "aabbccdd"
+    expect_status: OK
+  - op: INJECT_ERROR
+    type: POWER_LOSS
+    expect_status: OK
+  - op: READ
+    lba: 10
+    length: 4
+    expect_status: OK
+    expect_data: "00000000"     # never committed -> reverts to zeroed committed state
+
+  # Part 2: a flushed write must survive a subsequent power loss.
+  - op: WRITE
+    lba: 11
+    data: "11223344"
+    expect_status: OK
+  - op: FLUSH
+    expect_status: OK
+  - op: INJECT_ERROR
+    type: POWER_LOSS
+    expect_status: OK
+  - op: READ
+    lba: 11
+    length: 4
+    expect_status: OK
+    expect_data: "11223344"

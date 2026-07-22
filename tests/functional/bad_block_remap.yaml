@@ -1,0 +1,22 @@
+name: bad_block_remap
+description: >
+  Marks a logical block as bad, then verifies a write to that LBA is
+  transparently remapped to a spare block (the flash-translation-layer
+  behavior real firmware uses to hide failing cells from the host) and
+  that subsequent reads still return the correct data through the remap.
+steps:
+  - op: INJECT_ERROR
+    type: BAD_BLOCK
+    lba: 50
+    expect_status: OK
+  - op: WRITE
+    lba: 50
+    data: "deadbeef"
+    expect_status: OK
+  - op: READ
+    lba: 50
+    length: 4
+    expect_status: OK
+    expect_data: "deadbeef"
+  - op: FLUSH
+    expect_status: OK
